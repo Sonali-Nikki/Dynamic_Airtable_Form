@@ -9,12 +9,20 @@ const Login = () => {
   const { login } = useContext(AuthContext);
 
   useEffect(() => {
-    // If user came back from Airtable OAuth
     const code = searchParams.get("code");
     if (code) {
       completeAirtableLogin(code)
         .then((res) => {
-          login(res.user, res.token); // Save to AuthContext
+          if (!res.token || !res.user) {
+            throw new Error("Invalid login response");
+          }
+
+          // Save token in localStorage for API requests
+          localStorage.setItem("token", res.token);
+
+          // Save user & token in AuthContext
+          login(res.user, res.token);
+
           navigate("/"); // Redirect to home/dashboard
         })
         .catch((err) => {
@@ -34,7 +42,6 @@ const Login = () => {
   );
 };
 
-// Simple inline styles (replace with Tailwind/your CSS later)
 const styles = {
   container: {
     display: "flex",

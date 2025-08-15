@@ -27,15 +27,32 @@ export const completeAirtableLogin = async (code) => {
   localStorage.setItem("token", tokenFromHash); // Save token for future requests
 
   // Fetch profile using token
-  const res = await API.get("/auth/me");
+  const res = await api.get("/auth/me");
   return { user: res.data.user, token: tokenFromHash };
 };
 
 // Get current authenticated user
+
+
 export const getUserProfile = async () => {
-  const res = await api.get(`/auth/me`);
-  return res.data; // { id, name, email, ... }
+  try {
+    const token = localStorage.getItem("token"); // or from context/state
+
+    if (!token) throw new Error("No token found, please login");
+
+    const res = await api.get("/auth/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data; // { id, name, email, ... }
+  } catch (error) {
+    console.error("Failed to fetch user profile:", error.response?.data || error.message);
+    throw error;
+  }
 };
+
 
 // =================== FORMS ===================
 
