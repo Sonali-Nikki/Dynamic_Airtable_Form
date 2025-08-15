@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+
+/* Apply font globally */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9fafb; /* Light gray background */
+  color: #111827; /* Dark gray text */
+}
+
+/* Smooth scrolling and transitions */
+html {
+  scroll-behavior: smooth;
+}
+
+button, a {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Form inputs */
+input, select, textarea {
+  outline: none;
+  border: 1px solid #d1d5db; /* Light border */
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #2563eb; /* Blue border on focus */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* Card style */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
