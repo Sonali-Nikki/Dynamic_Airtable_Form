@@ -22,7 +22,7 @@ function App() {
       <Navbar />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/form/:id" element={<FormViewer />} />
 
         {/* Protected Routes */}

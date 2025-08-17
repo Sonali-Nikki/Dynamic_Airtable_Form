@@ -4,6 +4,12 @@ import axios from "axios";
 // ✅ Use Vite environment variable for API URL
 const API_URL = import.meta.env.VITE_API_URL;
 
+// ✅ Airtable Client ID from Vite env
+const AIRTABLE_CLIENT_ID = import.meta.env.VITE_AIRTABLE_CLIENT_ID;
+
+// ✅ Redirect URI (must match your Airtable app settings)
+const REDIRECT_URI = `http://localhost:5000/api/auth/airtable/callback`;
+
 // Create axios instance with credentials enabled (for cookies/sessions)
 const api = axios.create({
   baseURL: API_URL,
@@ -14,45 +20,42 @@ const api = axios.create({
 
 // Redirect to Airtable OAuth login (backend route)
 export const loginWithAirtable = () => {
-  // Redirect user to backend OAuth login route
-  window.location.href = `${import.meta.env.VITE_API_URL}/auth/login`;
+  window.location.href =
+    `https://airtable.com/oauth2/v1/authorize?` +
+    `client_id=${AIRTABLE_CLIENT_ID}&` +
+    `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+    `response_type=code`;
 };
 
 // Handle OAuth callback from Airtable
 export const completeAirtableLogin = async (code) => {
-  // Hit backend callback route (optional if backend just redirects)
-  const tokenFromHash = window.location.hash.split("token=")[1];
+  const tokenFromHash = new URLSearchParams(window.location.hash.replace("#", "?")).get("token");
+
   if (!tokenFromHash) throw new Error("No token found");
 
   localStorage.setItem("token", tokenFromHash); // Save token for future requests
 
   // Fetch profile using token
-  const res = await api.get("/auth/me");
+  const res = await api.get("/auth/me", {
+    headers: { Authorization: `Bearer ${tokenFromHash}` },
+  });
   return { user: res.data.user, token: tokenFromHash };
 };
 
 // Get current authenticated user
-
-
 export const getUserProfile = async () => {
-  try {
-    const token = localStorage.getItem("token"); // or from context/state
+  const token = localStorage.getItem("token");
 
-    if (!token) throw new Error("No token found, please login");
-
-    const res = await api.get("/auth/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return res.data; // { id, name, email, ... }
-  } catch (error) {
-    console.error("Failed to fetch user profile:", error.response?.data || error.message);
-    throw error;
+  if (!token) {
+    throw new Error("No authentication token found");
   }
-};
 
+  const response = await api.get(`/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return response.data;
+};
 
 // =================== FORMS ===================
 
